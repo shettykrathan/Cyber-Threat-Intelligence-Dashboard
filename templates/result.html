@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Threat Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("fade-in");
+  });
+     window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      const content = document.getElementById("main-content");
+      content.classList.remove("hidden");
+      content.classList.add("show");
+    }, 1200);
+  });
+</script>
+  <style>
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: radial-gradient(circle, #010409, #020617 80%);
+      color: #00ffc8;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+       opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    }
+      body.fade-in {
+    opacity: 1;
+  }
+ .panel {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid #00f7ff44;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 0 25px #00f7ff33;
+  backdrop-filter: blur(8px);
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.panel:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 40px #00f7ff66;
+}
+
+    .label {
+      color: #7dd3fc;
+    }
+    .divider {
+      border-top: 1px dashed #00ffc833;
+      margin: 1.2rem 0;
+    }
+    footer {
+      background: #0f172a;
+      padding: 1.5rem;
+      border-top: 2px dashed #00f7ff66;
+    }
+    @keyframes slide-in {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .slide-in {
+      opacity: 0;
+      animation: slide-in 0.9s ease-out forwards;
+    }
+    .fade-in {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .fade-in.show {
+    opacity: 1;
+  }
+  </style>
+</head>
+<body class="p-6">
+  <div id="loader"
+     class="fixed inset-0 z-50 bg-black flex items-center justify-center text-cyan-400 text-xl">
+  <span class="animate-pulse">⏳Loading Results...</span>
+</div>
+<div id="main-content" class="hidden fade-in">
+
+  <!-- Header Bar -->
+<header class="w-full flex items-center justify-between mb-6 px-6 py-4 border-b border-cyan-900 bg-[#0f172a]/50 backdrop-blur-md shadow-md">
+  
+  <!-- Left: Logo + Time -->
+  <div>
+    <h1 class="text-cyan-400 text-2xl tracking-widest font-bold">CYBER THREAT REPORT</h1>
+    <p class="text-xs text-slate-400 mt-1">Scan Time: {{ result.timestamp }}</p>
+  </div>
+  
+ <nav class="flex gap-4">
+  <a href="/"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white ">
+    Home
+  </a>
+   <a href="/visuals"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    Visuals
+  </a>
+  <a href="/history"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    History
+  </a>
+</nav>
+</header>
+
+
+
+  <!-- Animated Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+
+    <!-- IP Info -->
+    <div class="panel text-sm slide-in" style="animation-delay: 0.2s">
+      <h3 class="text-lg mb-4 text-cyan-300">IP Details</h3>
+      <p class="mb-2"><span class="label">IP Address:</span> {{ result.ip }}</p>
+      <div class="divider"></div>
+      <h4 class="text-cyan-300">Geo Info</h4>
+      <ul class="mt-2 space-y-1">
+        <li><span class="label">Country:</span> {{ result.geo.country }}</li>
+        <li><span class="label">Region:</span> {{ result.geo.region }}</li>
+        <li><span class="label">City:</span> {{ result.geo.city }}</li>
+        <li><span class="label">ISP:</span> {{ result.geo.isp }}</li>
+      </ul>
+    </div>
+
+    <!-- VirusTotal -->
+    <div class="panel text-sm slide-in" style="animation-delay: 0.4s">
+      <h3 class="text-lg mb-4 text-cyan-300">VirusTotal Scan</h3>
+      <ul class="space-y-2">
+        <li><span class="label">Harmless:</span> {{ result.virustotal.last_analysis_stats.harmless }}</li>
+        <li><span class="label">Undetected:</span> {{ result.virustotal.last_analysis_stats.undetected }}</li>
+        <li><span class="label text-yellow-400">Suspicious:</span> {{ result.virustotal.last_analysis_stats.suspicious }}</li>
+        <li><span class="label text-red-500">Malicious:</span> {{ result.virustotal.last_analysis_stats.malicious }}</li>
+        <li><span class="label">Timeout:</span> {{ result.virustotal.last_analysis_stats.timeout }}</li>
+        <li><span class="label">Reputation:</span> {{ result.virustotal.reputation }}</li>
+      </ul>
+    </div>
+
+    <!-- AbuseIPDB -->
+    <div class="panel text-sm slide-in" style="animation-delay: 0.6s">
+      <h4 class="text-lg text-cyan-300 mb-2">AbuseIPDB</h4>
+      <p><span class="label">Confidence Score:</span> {{ result.abuseipdb.abuseConfidenceScore }}</p>
+      <p><span class="label">Total Reports:</span> {{ result.abuseipdb.totalReports }}</p>
+    </div>
+
+  </div>
+
+  <!-- Summary Footer -->
+  <footer class="mt-10 text-center text-sm text-cyan-300 border-t border-cyan-800 pt-6 slide-in" style="animation-delay: 0.8s">
+    <h4 class="text-xl font-bold text-cyan-400 tracking-wider mb-4">Scan Summary</h4>
+
+    <div class="mx-auto w-full md:w-[60%] bg-[#0f172a] border border-cyan-600/40 shadow-lg rounded-2xl p-6 space-y-3">
+      {% if result.virustotal.last_analysis_stats.malicious > 2 or result.abuseipdb.abuseConfidenceScore > 50 %}
+        <div class="text-red-400 text-lg font-bold tracking-wide">Status: <span class="ml-2">HIGH RISK</span></div>
+        <p class="text-slate-400">This IP shows strong signs of malicious activity or abuse, based on VirusTotal & AbuseIPDB confidence scores.</p>
+      {% elif result.virustotal.last_analysis_stats.suspicious > 0 %}
+        <div class="text-yellow-300 text-lg font-bold tracking-wide">Status: <span class="ml-2">SUSPICIOUS</span></div>
+        <p class="text-slate-400">Indicators suggest potential threat activity. Proceed with caution and monitor behavior.</p>
+      {% else %}
+        <div class="text-green-400 text-lg font-bold tracking-wide">Status: <span class="ml-2">SAFE</span></div>
+        <p class="text-slate-400">No immediate threat detected from VirusTotal or AbuseIPDB analysis. No further action required.</p>
+      {% endif %}
+      
+      <div class="h-[2px] w-1/2 mx-auto bg-cyan-800 rounded-full my-4"></div>
+
+      <p class="text-xs text-slate-500 italic">Scan generated by Cyber Threat Intelligence Dashboard</p>
+    </div>
+  </footer>
+
+  <footer class="text-xs text-slate-500 fade-in text-center mt-4">
+    © 2025 Krathan — Elevating Cybersecurity 
+  </footer>
+</div>
+</body>
+</html>

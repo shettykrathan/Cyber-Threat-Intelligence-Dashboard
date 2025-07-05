@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Threat Visuals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("fade-in");
+  });
+   window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      const content = document.getElementById("main-content");
+      content.classList.remove("hidden");
+      content.classList.add("show");
+    }, 1200);
+  });
+</script>
+  <style>
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: radial-gradient(circle, #010409, #020617 80%);
+      color: #00ffc8;
+      min-height: 100vh;
+      padding: 1.5rem;
+      margin: 0;
+       opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    }
+      body.fade-in {
+    opacity: 1;
+  }
+    .panel {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #00f7ff44;
+      padding: 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00f7ff22;
+      backdrop-filter: blur(5px);
+      transition: transform 0.2s ease;
+      height: 380px; /* Controls vertical size */
+    }
+    .panel:hover {
+      transform: scale(1.02);
+    }
+    .panel h2 {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+    }
+    canvas {
+      max-height: 280px;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: slideIn 0.8s ease forwards;
+    }
+      .fade-in {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .fade-in.show {
+    opacity: 1;
+  }
+
+  </style>
+</head>
+<body>
+<div id="loader"
+     class="fixed inset-0 z-50 bg-black flex items-center justify-center text-cyan-400 text-xl">
+  <span class="animate-pulse">⏳Loading Visuals...</span>
+</div>
+<div id="main-content" class="hidden fade-in">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl text-cyan-400 tracking-widest">Threat Visuals</h1>
+      <p class="text-xs text-slate-400 mt-1">Report Summary</p>
+    </div>
+<div class="flex space-x-3">
+  <a href="/"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    Home
+  </a>
+  <a href="/results"
+  class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+  Results
+</a>
+<a href="/history"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    History
+  </a>
+  <a href="/export"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    Export CSV
+  </a>
+</div>
+
+  </div>
+
+  <div id="charts" class="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in">
+    {% set entry = threats[-1] %}
+    <div class="panel">
+      <h2 class="text-xl text-cyan-300">VirusTotal Analysis - {{ entry.ip }}</h2>
+      <canvas id="vtChart"></canvas>
+    </div>
+    <div class="panel">
+      <h2 class="text-xl text-cyan-300">AbuseIPDB Score - {{ entry.ip }}</h2>
+      <canvas id="abuseChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center text-xs text-slate-400 mt-12">
+    <hr class="my-4 border-cyan-800" />
+    © 2025 Krathan — Elevating Cybersecurity
+  </div>
+</div>
+  <!-- Chart Rendering Script -->
+  <script>
+    const entry = {{ threats[-1] | tojson | safe }};
+    const vt = entry.virustotal?.last_analysis_stats || {};
+    const abuse = entry.abuseipdb || {};
+
+    const vtChartData = {
+      labels: ['Harmless', 'Suspicious', 'Malicious', 'Timeout', 'Undetected'],
+      datasets: [{
+        label: 'VirusTotal',
+        data: [
+          vt.harmless || 0,
+          vt.suspicious || 0,
+          vt.malicious || 0,
+          vt.timeout || 0,
+          vt.undetected || 0
+        ],
+        backgroundColor: ['#22c55e', '#facc15', '#ef4444', '#64748b', '#0ea5e9']
+      }]
+    };
+
+    const abuseChartData = {
+      labels: ['Confidence Score', 'Remaining'],
+      datasets: [{
+        label: 'AbuseIPDB',
+        data: [
+          abuse.abuseConfidenceScore || 0,
+          100 - (abuse.abuseConfidenceScore || 0)
+        ],
+        backgroundColor: ['#ef4444', '#334155']
+      }]
+    };
+
+    new Chart(document.getElementById('vtChart'), {
+      type: 'bar',
+      data: vtChartData,
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    new Chart(document.getElementById('abuseChart'), {
+      type: 'doughnut',
+      data: abuseChartData,
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  </script>
+</body>
+</html>

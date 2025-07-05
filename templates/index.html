@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyber Threat Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+  <script>
+    function showLogoutModal() {
+      document.getElementById("logoutModal").classList.remove("hidden");
+    }
+
+    function closeLogoutModal() {
+      document.getElementById("logoutModal").classList.add("hidden");
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(ellipse at top, #0f172a, #020617);
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .typewriter h1 {
+      overflow: hidden;
+      border-right: .15em solid #00f7ff;
+      white-space: nowrap;
+      margin: 0 auto;
+      letter-spacing: .1em;
+      animation:
+        typing 2.5s steps(40, end),
+        blink-caret .75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from {
+        width: 0
+      }
+
+      to {
+        width: 100%
+      }
+    }
+
+    @keyframes blink-caret {
+
+      from,
+      to {
+        border-color: transparent
+      }
+
+      50% {
+        border-color: #00f7ff;
+      }
+    }
+
+    .glow {
+      box-shadow: 0 0 15px #00f7ff;
+    }
+
+    .fade-in {
+      animation: fadeIn 2.5s ease-in forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+  </style>
+</head>
+<div id="logoutModal"
+  class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-[9999] hidden flex items-center justify-center">
+  <div class="bg-slate-900 rounded-2xl p-6 glow text-center w-80 space-y-4 border border-cyan-400 text-white">
+    <h2 class="text-xl text-cyan-300 font-semibold">Confirm Logout</h2>
+    <p class="text-sm text-gray-400">Are you sure you want to log out?</p>
+    <div class="flex justify-center gap-4 mt-4">
+      <a href="{{ url_for('logout') }}"
+        class="px-4 py-2 hover:bg-red-400 text-white rounded-lg font-semibold transition-all">
+        Yes, Logout
+      </a>
+      <button onclick="closeLogoutModal()"
+        class="px-4 py-2 hover:bg-slate-600 text-cyan-200 rounded-lg font-medium transition-all">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<body
+  class="flex flex-col items-center justify-center min-h-screen bg-[#020617] text-white font-orbitron px-4 py-12 space-y-10">
+  <div class="fixed bottom-4 right-6 z-40">
+    <div onclick="showLogoutModal()"
+      class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+      Logout
+    </div>
+  </div>
+  <div class="text-center fade-in space-y-3">
+    <h1
+      class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300 animate-pulse">
+      Cyber Threat Intelligence
+    </h1>
+    <p class="text-cyan-200 text-sm md:text-base tracking-wide">
+      Investigate IPs — Fast. Secure. Smart.
+    </p>
+  </div>
+  <div class="bg-slate-900 bg-opacity-60 backdrop-blur-md rounded-2xl p-8 glow fade-in transition-all duration-1000">
+    <h3 class="text-gray-400 mb-6">Enter an IP to analyze.</h3>
+
+    <form action="/lookup" method="POST" class="space-y-4">
+      <input type="text" name="target" placeholder="e.g. 192.168.1.1"
+        class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-cyan-500 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+        required>
+
+      <button type="submit"
+        class="w-full py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 transition font-semibold text-slate-900 shadow-lg">
+        ⚡ Analyze Threat
+      </button>
+    </form>
+
+    <div class="mt-6 text-sm text-gray-500 text-center">
+      Secure • Fast • Accurate
+    </div>
+
+  </div>
+  <footer class="text-xs text-slate-500 fade-in">
+    © 2025 Krathan — Elevating Cybersecurity
+  </footer>
+
+  <div id="loadingScreen"
+    class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-95 z-[9999] hidden flex items-center justify-center m-0 p-0">
+    <div class="text-cyan-300 text-xl animate-pulse font-mono">🧠 Analyzing Threat...</div>
+  </div>
+
+</body>
+<script>
+  const form = document.querySelector("form"); // target your form
+  const loadingScreen = document.getElementById("loadingScreen");
+
+  form.addEventListener("submit", () => {
+    loadingScreen.classList.remove("hidden");
+  });
+</script>
+
+</html>

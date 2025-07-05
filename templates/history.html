@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>History</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("fade-in");
+  });
+   window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      const content = document.getElementById("main-content");
+      content.classList.remove("hidden");
+      content.classList.add("show");
+    }, 1200);
+  });
+</script>
+  <style>
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background-color: #020617;
+      color: #00ffc8;
+       opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    }
+      body.fade-in {
+    opacity: 1;
+  }
+  </style>
+</head>
+<body class="p-6">
+
+  <div id="loader"
+     class="fixed inset-0 z-50 bg-black flex items-center justify-center text-cyan-400 text-xl">
+  <span class="animate-pulse">⏳Preparing History...</span>
+</div>
+<div id="main-content" class="hidden fade-in">
+
+  <!-- Top Bar -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl text-cyan-400">Scan History</h1>
+    <div class="flex space-x-3">
+    <a href="/"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    Home
+  </a>
+  <a href="/results"
+  class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+  Results
+</a>
+  <a href="/visuals"
+    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
+    Visuals
+  </a>
+    </div>
+  </div>
+
+  <!-- History Entries -->
+  <div class="space-y-4">
+    {% for entry in threats %}
+      <div class="bg-slate-900/50 border border-cyan-400 p-4 rounded-xl shadow-md hover:shadow-cyan-500/10 transition">
+        <div class="text-lg text-white">🔗 IP: {{ entry.ip }}</div>
+        <div class="text-sm text-slate-400 mt-1">
+          📍 Location: {{ entry.geo.city if entry.geo else 'Unknown' }}, {{ entry.geo.country if entry.geo else 'Unknown' }}<br>
+          ⏱ Scanned: {{ entry.timestamp if entry.timestamp else 'Unknown' }}<br>
+          🚨 Abuse Score: {{ entry.abuseipdb.abuseConfidenceScore if entry.abuseipdb else 'N/A' }} / 100 <br>
+          {% set score = entry.abuseipdb.abuseConfidenceScore if entry.abuseipdb else 0 %}
+{% set score = entry.abuseipdb.abuseConfidenceScore if entry.abuseipdb and 'abuseConfidenceScore' in entry.abuseipdb else 0 %}
+
+🧠 Status: 
+<span class="font-semibold px-2 py-1 rounded text-sm
+  {% if score <= 10 %}
+    text-green-300 
+  {% elif score <= 40 %}
+    text-yellow-300 
+  {% elif score <= 70 %}
+    text-orange-300 
+  {% else %}
+    text-red-300 
+  {% endif %}
+">
+  {% if score <= 10 %}
+    🟢Safe
+  {% elif score <= 40 %}  
+🟡Low Risk
+  {% elif score <= 70 %}  
+🟠Suspicious
+  {% else %}  
+🔴High Risk
+  {% endif %}
+</span>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-slate-500">No scan history yet.</p>
+    {% endfor %}
+  </div>
+</div>
+</body>
+</html>
