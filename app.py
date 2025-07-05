@@ -71,7 +71,13 @@ def index():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     return render_template('index.html')
-
+@app.route("/test_mongo")
+def test_mongo():
+    try:
+        db.test.insert_one({"msg": "Mongo connected!"})
+        return "MongoDB Insert Successful ✅"
+    except Exception as e:
+        return f"MongoDB Error ❌: {e}"
 
 @app.route('/lookup', methods=['POST'])
 def lookup():
