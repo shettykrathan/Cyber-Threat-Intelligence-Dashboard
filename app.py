@@ -7,20 +7,22 @@ import os
 import requests
 from datetime import datetime
 from utils.vt_api import check_ip_virustotal
-from utils.abuse_api import check_ip_abuse
+from utils.gn_api import get_ip_score_numeric
 import csv
 import io
-last_scanned_ip = None
+last_result = None
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'supersecret'  
 
-
-# MongoDB setup
-mongo_uri = os.getenv("MONGO_URI")
-client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+client = MongoClient(
+    os.getenv("MONGO_URI"),
+    tls=True,
+    serverSelectionTimeoutMS=5000
+)
 db = client.cti_dashboard
 threats_collection = db["threats"]
+
 
 USERS_FILE = 'users.json'
 
@@ -83,14 +85,11 @@ def lookup():
 
     ip = request.form['target']
 
-    # VirusTotal and AbuseIPDB results
     vt_data = check_ip_virustotal(ip)
-    abuse_data = check_ip_abuse(ip)
+    gn_data = get_ip_score_numeric(ip)
 
-    # Timestamp
     timestamp = datetime.now().strftime("%d %b %Y, %I:%M %p")
 
-    # GeoIP Lookup
     geo_response = requests.get(f"http://ip-api.com/json/{ip}").json()
     geo_info = {
         "country": geo_response.get("country", "Unknown"),
@@ -99,19 +98,16 @@ def lookup():
         "isp": geo_response.get("isp", "Unknown")
     }
 
-    # Final Result Object
     result = {
         "ip": ip,
         "timestamp": timestamp,
         "geo": geo_info,
         "virustotal": vt_data,
-        "abuseipdb": abuse_data
+        "greynoise": gn_data,
     }
 
-    # Save to MongoDB
     threats_collection.insert_one(result)
 
-    # Store in global for /results route
     last_result = result
 
     return render_template('result.html', result=result)
@@ -145,7 +141,7 @@ def history():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    threats = list(threats_collection.find().sort("timestamp", -1))  # latest first
+    threats = list(threats_collection.find().sort("timestamp", -1))  
     return render_template('history.html', threats=threats)
 
 
@@ -160,16 +156,14 @@ def export():
         data = csv.StringIO()
         writer = csv.writer(data)
 
-        # Write header
         writer.writerow((
             "IP", "Timestamp", "Country", "Region", "City", "ISP",
-            "Abuse Score", "VT Harmless", "VT Suspicious", "VT Malicious", "VT Timeout", "VT Undetected"
+            "GreyNoise Score", "GreyNoise Label", "VT Harmless", "VT Suspicious", "VT Malicious", "VT Timeout", "VT Undetected"
         ))
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
 
-        # Write data rows
         for threat in threats:
             ip = threat.get("ip", "")
             timestamp = threat.get("timestamp", "")
@@ -184,7 +178,8 @@ def export():
                 geo.get("region", ""),
                 geo.get("city", ""),
                 geo.get("isp", ""),
-                abuse.get("abuseConfidenceScore", ""),
+                threat.get("greynoise", {}).get("score", ""),
+                threat.get("greynoise", {}).get("label", ""),
                 vt.get("harmless", ""),
                 vt.get("suspicious", ""),
                 vt.get("malicious", ""),

@@ -39,7 +39,6 @@
 </div>
 <div id="main-content" class="hidden fade-in">
 
-  <!-- Top Bar -->
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl text-cyan-400">Scan History</h1>
     <div class="flex space-x-3">
@@ -58,46 +57,46 @@
     </div>
   </div>
 
-  <!-- History Entries -->
-  <div class="space-y-4">
-    {% for entry in threats %}
-      <div class="bg-slate-900/50 border border-cyan-400 p-4 rounded-xl shadow-md hover:shadow-cyan-500/10 transition">
-        <div class="text-lg text-white">🔗 IP: {{ entry.ip }}</div>
-        <div class="text-sm text-slate-400 mt-1">
-          📍 Location: {{ entry.geo.city if entry.geo else 'Unknown' }}, {{ entry.geo.country if entry.geo else 'Unknown' }}<br>
-          ⏱ Scanned: {{ entry.timestamp if entry.timestamp else 'Unknown' }}<br>
-          🚨 Abuse Score: {{ entry.abuseipdb.abuseConfidenceScore if entry.abuseipdb else 'N/A' }} / 100 <br>
-          {% set score = entry.abuseipdb.abuseConfidenceScore if entry.abuseipdb else 0 %}
-{% set score = entry.abuseipdb.abuseConfidenceScore if entry.abuseipdb and 'abuseConfidenceScore' in entry.abuseipdb else 0 %}
+<div class="space-y-4">
+  {% for entry in threats | reverse %}
 
-🧠 Status: 
-<span class="font-semibold px-2 py-1 rounded text-sm
-  {% if score <= 10 %}
-    text-green-300 
-  {% elif score <= 40 %}
-    text-yellow-300 
-  {% elif score <= 70 %}
-    text-orange-300 
-  {% else %}
-    text-red-300 
-  {% endif %}
-">
-  {% if score <= 10 %}
-    🟢Safe
-  {% elif score <= 40 %}  
-🟡Low Risk
-  {% elif score <= 70 %}  
-🟠Suspicious
-  {% else %}  
-🔴High Risk
-  {% endif %}
-</span>
-        </div>
+    <div class="bg-slate-900/50 border border-cyan-400 p-4 rounded-xl shadow-md hover:shadow-cyan-500/10 transition">
+      <div class="text-lg text-white">🔗 IP: {{ entry.ip }}</div>
+      <div class="text-sm text-slate-400 mt-1">
+        📍 Location: {{ entry.geo.city if entry.geo else 'Unknown' }}, {{ entry.geo.country if entry.geo else 'Unknown' }}<br>
+        ⏱ Scanned: {{ entry.timestamp if entry.timestamp else 'Unknown' }}<br>
+        🚨 GreyNoise Score: {{ entry.greynoise.score if entry.greynoise else 'N/A' }} / 100 <br>
+
+        {% set score = entry.greynoise.score if entry.greynoise and 'score' in entry.greynoise else 0 %}
+
+        🧠 Status: 
+        <span class="font-semibold px-2 py-1 rounded text-sm
+          {% if score <= 10 %}
+            text-green-300 
+          {% elif score <= 40 %}
+            text-yellow-300 
+          {% elif score <= 70 %}
+            text-orange-300 
+          {% else %}
+            text-red-300 
+          {% endif %}
+        ">
+          {% if score <= 10 %}
+            🟢Safe
+          {% elif score <= 40 %}  
+            🟡Low Risk
+          {% elif score <= 70 %}  
+            🟠Suspicious
+          {% else %}  
+            🔴High Risk
+          {% endif %}
+        </span>
       </div>
-    {% else %}
-      <p class="text-slate-500">No scan history yet.</p>
-    {% endfor %}
-  </div>
+    </div>
+  {% else %}
+    <p class="text-slate-500">No scan history yet.</p>
+  {% endfor %}
 </div>
+
 </body>
 </html>

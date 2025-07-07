@@ -19,6 +19,7 @@
       content.classList.add("show");
     }, 1200);
   });
+  
 </script>
   <style>
     body {
@@ -109,10 +110,10 @@
       <h2 class="text-xl text-cyan-300">VirusTotal Analysis - {{ entry.ip }}</h2>
       <canvas id="vtChart"></canvas>
     </div>
-    <div class="panel">
-      <h2 class="text-xl text-cyan-300">AbuseIPDB Score - {{ entry.ip }}</h2>
-      <canvas id="abuseChart"></canvas>
-    </div>
+   <div class="panel">
+  <h2 class="text-xl text-cyan-300">GreyNoise Threat Score - {{ entry.ip }}</h2>
+  <canvas id="gnChart"></canvas>
+</div>
   </div>
 
   <!-- Footer -->
@@ -125,7 +126,7 @@
   <script>
     const entry = {{ threats[-1] | tojson | safe }};
     const vt = entry.virustotal?.last_analysis_stats || {};
-    const abuse = entry.abuseipdb || {};
+    const gn = entry.greynoise || {};
 
     const vtChartData = {
       labels: ['Harmless', 'Suspicious', 'Malicious', 'Timeout', 'Undetected'],
@@ -142,29 +143,41 @@
       }]
     };
 
-    const abuseChartData = {
-      labels: ['Confidence Score', 'Remaining'],
-      datasets: [{
-        label: 'AbuseIPDB',
-        data: [
-          abuse.abuseConfidenceScore || 0,
-          100 - (abuse.abuseConfidenceScore || 0)
-        ],
-        backgroundColor: ['#ef4444', '#334155']
-      }]
-    };
+const gnChartData = {
+  labels: ['Threat Score', 'Remaining'],
+  datasets: [{
+    label: 'GreyNoise',
+    data: [
+      gn.score || 0,
+      100 - (gn.score || 0)
+    ],
+    backgroundColor: ['#f87171', '#334155']
+  }]
+};
 
     new Chart(document.getElementById('vtChart'), {
       type: 'bar',
       data: vtChartData,
       options: { responsive: true, plugins: { legend: { display: false } } }
     });
+    new Chart(document.getElementById('gnChart'), {
+  type: 'doughnut',
+  data: gnChartData,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.label}: ${context.parsed}%`;
+          }
+        }
+      }
+    }
+  }
+});
 
-    new Chart(document.getElementById('abuseChart'), {
-      type: 'doughnut',
-      data: abuseChartData,
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
   </script>
 </body>
 </html>
