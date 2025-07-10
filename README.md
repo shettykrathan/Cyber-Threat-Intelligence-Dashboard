@@ -34,16 +34,10 @@ It features a secure login system, stores results in MongoDB, and presents detai
 
 🌐 cti-dashboard-production.up.railway.app
 
-📁 Project Structure
 
-cti-dashboard/
-│
-├── templates/           # HTML Templates
-├── utils/               # Utilities 
-├── app.py               # Flask App Entry Point             
-├── .env                 # Environment Variables
-├── requirements.txt     # Dependencies
-└── README.md            # Project Overview
+## 📁 Project Structure
+
+cti-dashboard/ ├── templates/         # HTML templates for frontend views ├── utils/             # Utility functions (API calls, DB ops, etc.) ├── app.py             # Main Flask application file ├── .env               # Environment variables (API keys, DB URI) ├── requirements.txt   # Project dependencies └── README.md          # Project documentation
 
 
 🙌 Acknowledgements
