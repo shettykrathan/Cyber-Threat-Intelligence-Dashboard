@@ -35,10 +35,6 @@ It features a secure login system, stores results in MongoDB, and presents detai
 🌐 cti-dashboard-production.up.railway.app
 
 
-## 📁 Project Structure
-
-cti-dashboard/ ├── templates/         # HTML templates for frontend views ├── utils/             # Utility functions (API calls, DB ops, etc.) ├── app.py             # Main Flask application file ├── .env               # Environment variables (API keys, DB URI) ├── requirements.txt   # Project dependencies └── README.md          # Project documentation
-
 
 🙌 Acknowledgements
 
@@ -48,13 +44,11 @@ Powered by GreyNoise and VirusTotal
 
 Inspired by real-world CTI analysis tools
 
+## 📫 Contact
 
-📫 Contact
-
-Developer: Krathan Shetty
-📧 shettykrathann@gmail.com
-🔗 LinkedIn
-💻 GitHub
+**Developer**: Krathan Shetty  
+📧 [shettykrathann@gmail.com](mailto:shettykrathann@gmail.com)  
+🔗 [LinkedIn](https://www.linkedin.com/in/shettykrathan)  
 
 
 ---
