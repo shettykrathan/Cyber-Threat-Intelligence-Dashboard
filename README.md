@@ -30,10 +30,26 @@ It features a secure login system, stores results in MongoDB, and presents detai
 | Deployment    | Railway, Localhost                 |
 
 
-## 📁 Project Structure
-
-
-<pre><code>## 📁 Project Structure ``` Cyber-Threat-Intelligence-Dashboard/ │ ├── templates/ │ ├── index.html │ ├── visuals.html │ ├── results.html │ ├── login.html │ └── signup.html │ ├── utils/ │ ├── init.py │ ├── vt_api.py │ └── gn_api.py │ ├── app.py ├── users.json ├── .env ├── .gitignore ├── Procfile.txt ├── requirements.txt └── README.md ``` 🔗 [Live Demo](https://cti-dashboard-production.up.railway.app) </code></pre>
+<pre><code>## 📁 Project Structure 
+``` Cyber-Threat-Intelligence-Dashboard/ 
+  │
+  ├── templates/ 
+  │ ├── index.html 
+  │ ├── visuals.html 
+  │ ├── results.html 
+  │ ├── login.html 
+  │ └── signup.html 
+  ├── utils/ 
+  │ ├── init.py 
+  │ ├── vt_api.py 
+  │ └── gn_api.py 
+  ├── app.py 
+  ├── users.json 
+  ├── .env 
+  ├── .gitignore 
+  ├── Procfile.txt 
+  ├── requirements.txt 
+  └── README.md ``` </code></pre>
 
 ## 🔗 Live Demo
 
