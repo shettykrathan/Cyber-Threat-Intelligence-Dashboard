@@ -29,8 +29,8 @@ It features a secure login system, stores results in MongoDB, and presents detai
 | Frontend      | HTML, TailwindCSS, JS                |
 | Deployment    | Railway, Localhost                 |
 
-
-<pre><code>## 📁 Project Structure 
+## 📁 Project Structure 
+<pre><code>
 ``` Cyber-Threat-Intelligence-Dashboard/ 
   │
   ├── templates/ 
