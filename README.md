@@ -33,7 +33,7 @@ It features a secure login system, stores results in MongoDB, and presents detai
 ## 📁 Project Structure
 
 
-Cyber-Threat-Intelligence-Dashboard/
+Cyber-Threat-Intelligence-Dashboard/                                                                                                                                                                          
 │
 ├── templates/
 │ ├── index.html
