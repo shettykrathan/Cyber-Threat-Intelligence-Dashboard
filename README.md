@@ -30,19 +30,16 @@ It features a secure login system, stores results in MongoDB, and presents detai
 | Deployment    | Railway, Localhost                 |
 
 
-🔗 Live Demo
+## 🔗 Live Demo
 
 🌐 cti-dashboard-production.up.railway.app
 
 
+## 🙌 Acknowledgements
 
-🙌 Acknowledgements
-
-Built in collaboration with Elevate Labs
-
-Powered by GreyNoise and VirusTotal
-
-Inspired by real-world CTI analysis tools
+- Built in collaboration with Elevate Labs
+- Powered by GreyNoise and VirusTotal
+- Inspired by real-world CTI analysis tools
 
 ## 📫 Contact
 
