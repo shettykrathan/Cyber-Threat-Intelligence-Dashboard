@@ -1,22 +1,38 @@
 # 🛡️ Cyber Threat Intelligence Dashboard
 
+> A real-time threat analysis dashboard built with Flask, MongoDB, and third-party threat intelligence APIs.  
+> **Developed in association with 🤝 Elevate Labs.**
+
 A modern web application for analyzing IP addresses using VirusTotal and GreyNoise threat intelligence APIs.
 
 ## ✨ Features
 
-- 🔍 **IP Threat Analysis** - Analyze IP addresses for security threats
+- 🔍 **IP Threat Analysis** - Analyze IP addresses for security threats using GreyNoise & VirusTotal
 - 📊 **Visual Dashboards** - Interactive charts and data visualizations
 - 📈 **Scan History** - Track and review previous IP scans
 - 🛡️ **Multi-Source Intelligence** - VirusTotal + GreyNoise integration
+- 🧠 **Real-time threat analysis** with malicious/suspicious/legitimate classification
+- 🔐 **User Authentication** - Secure login/signup system
 - 📥 **Data Export** - Export scan results to CSV
 - 🎨 **Modern UI/UX** - Beautiful, responsive design
+- 🗂️ **MongoDB-based data logging**
+
+## 🧰 Tech Stack
+
+| Layer         | Technologies Used                  |
+|---------------|-------------------------------------|
+| Backend       | Python, Flask                      |
+| APIs          | GreyNoise, VirusTotal              |
+| Database      | MongoDB                            |
+| Frontend      | HTML, TailwindCSS, JavaScript      |
+| Deployment    | Render, Railway, Localhost          |
 
 ## 🚀 Quick Start (Local)
 
 1. **Clone the repository**
    ```bash
-   git clone YOUR_REPO_URL
-   cd CTI-Dashboard
+   git clone https://github.com/shettykrathan/cti-dashboard.git
+   cd cti-dashboard
    ```
 
 2. **Install dependencies**
@@ -43,7 +59,7 @@ A modern web application for analyzing IP addresses using VirusTotal and GreyNoi
 
 ## 🌐 Deploy for Free
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+See [QUICK_DEPLOY.md](QUICK_DEPLOY.md) for the fastest deployment guide, or [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
 ### Quick Deploy Options:
 
@@ -116,12 +132,28 @@ CTI-Dashboard/
 5. **Check History** - Review previous scans
 6. **Export Data** - Download results as CSV
 
+## 🔗 Live Demo
+
+🌐 **Railway**: cti-dashboard-production.up.railway.app
+
 ## 🔒 Security Notes
 
 - Change default `SECRET_KEY` in production
 - Never commit `.env` file to version control
 - Use strong passwords for database access
 - Keep API keys secure
+
+## 🙌 Acknowledgements
+
+- Built in collaboration with Elevate Labs
+- Powered by GreyNoise and VirusTotal
+- Inspired by real-world CTI analysis tools
+
+## 📫 Contact
+
+**Developer**: Krathan Shetty  
+📧 [shettykrathann@gmail.com](mailto:shettykrathann@gmail.com)  
+🔗 [LinkedIn](https://www.linkedin.com/in/shettykrathan)
 
 ## 📝 License
 
@@ -131,11 +163,8 @@ This project is open source and available for personal and educational use.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📧 Support
-
-For issues or questions, please open an issue on GitHub.
-
 ---
 
-**Made with ❤️ for Cybersecurity Professionals**
+⭐ Feel free to fork, contribute, or raise issues! Security is a shared responsibility.
 
+**Made with ❤️ for Cybersecurity Professionals**
