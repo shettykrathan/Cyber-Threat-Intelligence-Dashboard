@@ -130,25 +130,20 @@
           <div>
             <p class="text-sm text-gray-400 mb-2">Threat Score</p>
             <div class="relative">
+              {# Precompute local safe values to avoid multiline Jinja inside attributes #}
+              {% set gn_score_local = result.greynoise.score if result.greynoise and 'score' in result.greynoise else 0 %}
               <div class="w-full bg-gray-700 rounded-full h-4 mb-2">
-                <div class="h-4 rounded-full transition-all duration-500
-                  {% if result.greynoise.score > 70 %}bg-red-500
-                  {% elif result.greynoise.score > 40 %}bg-yellow-500
-                  {% else %}bg-green-500{% endif %}"
-                  style="width: {{ result.greynoise.score }}%"></div>
+                <div class="h-4 rounded-full transition-all duration-500 {{ 'bg-red-500' if gn_score_local > 70 else ('bg-yellow-500' if gn_score_local > 40 else 'bg-green-500') }}" data-gn-width="{{ gn_score_local ~ '%' }}"></div>
               </div>
-              <p class="text-2xl font-bold text-cyan-300">{{ result.greynoise.score }}/100</p>
+              <p class="text-2xl font-bold text-cyan-300">{{ gn_score_local }}/100</p>
             </div>
           </div>
           <div class="divider"></div>
           <div>
             <p class="text-sm text-gray-400 mb-2">Classification</p>
-            <div class="inline-block px-4 py-2 rounded-lg
-              {% if result.greynoise.label == 'Benign' %}status-safe
-              {% elif result.greynoise.label == 'Suspicious' %}status-suspicious
-              {% elif result.greynoise.label == 'Malicious' %}status-danger
-              {% else %}bg-gray-700/50 border border-gray-500{% endif %}">
-              <span class="font-semibold">{{ result.greynoise.label }}</span>
+            {% set gn_label_local = result.greynoise.label if result.greynoise and 'label' in result.greynoise else '' %}
+            <div class="inline-block px-4 py-2 rounded-lg {{ 'status-safe' if gn_label_local == 'Benign' else ('status-suspicious' if gn_label_local == 'Suspicious' else ('status-danger' if gn_label_local == 'Malicious' else 'bg-gray-700/50 border border-gray-500')) }}">
+              <span class="font-semibold">{{ gn_label_local }}</span>
             </div>
           </div>
         </div>
@@ -225,6 +220,12 @@
         const content = document.getElementById("main-content");
         content.classList.remove("hidden");
         content.classList.add("fade-in");
+
+        // Apply GreyNoise progress bar widths from data attributes to avoid inline CSS with Jinja
+        document.querySelectorAll('[data-gn-width]').forEach(el => {
+          const w = el.getAttribute('data-gn-width');
+          if (w) el.style.width = w;
+        });
       }, 800);
     });
   </script>

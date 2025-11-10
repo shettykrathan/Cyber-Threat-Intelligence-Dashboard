@@ -13,29 +13,29 @@ import io
 last_result = None
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'supersecret-change-in-production')  
+app.secret_key = 'supersecret'
 
-# MongoDB connection with error handling
-try:
-    mongo_uri = os.getenv("MONGO_URI")
-    if mongo_uri:
-        client = MongoClient(
-            mongo_uri,
-            tls=True,
-            serverSelectionTimeoutMS=5000
-        )
-        db = client.cti_dashboard
-        threats_collection = db["threats"]
-    else:
-        print("Warning: MONGO_URI not set. Database features will be limited.")
-        client = None
-        db = None
-        threats_collection = None
-except Exception as e:
-    print(f"Warning: MongoDB connection failed: {e}")
-    client = None
-    db = None
-    threats_collection = None
+# Configure MongoDB connection
+# Read URI from env, default to local MongoDB
+mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+
+# Determine whether to use TLS. For local connections (localhost/127.0.0.1) we disable TLS by default.
+env_tls = os.getenv("MONGO_TLS")
+use_tls = False
+if env_tls is not None:
+    use_tls = str(env_tls).lower() in ("1", "true", "yes", "on")
+else:
+    # Auto-enable TLS for SRV connection strings or explicit tls query params
+    if "mongodb+srv" in mongo_uri or "tls=true" in mongo_uri.lower():
+        use_tls = True
+
+client = MongoClient(
+    mongo_uri,
+    tls=use_tls,
+    serverSelectionTimeoutMS=5000
+)
+db = client.cti_dashboard
+threats_collection = db["threats"]
 
 
 USERS_FILE = 'users.json'
@@ -120,8 +120,7 @@ def lookup():
         "greynoise": gn_data,
     }
 
-    if threats_collection:
-        threats_collection.insert_one(result)
+    threats_collection.insert_one(result)
 
     last_result = result
 
@@ -133,13 +132,10 @@ def visuals():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    if threats_collection:
-        raw_threats = list(threats_collection.find())
-        for t in raw_threats:
-            if '_id' in t:
-                t['_id'] = str(t['_id'])
-    else:
-        raw_threats = []
+    raw_threats = list(threats_collection.find())
+    for t in raw_threats:
+        if '_id' in t:
+            t['_id'] = str(t['_id'])
     return render_template('visuals.html', threats=raw_threats)
 
 
@@ -159,10 +155,7 @@ def history():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    if threats_collection:
-        threats = list(threats_collection.find().sort("timestamp", -1))
-    else:
-        threats = []
+    threats = list(threats_collection.find().sort("timestamp", -1))  
     return render_template('history.html', threats=threats)
 
 
@@ -171,10 +164,7 @@ def export():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    if threats_collection:
-        threats = list(threats_collection.find())
-    else:
-        threats = []
+    threats = list(threats_collection.find())
 
     def generate():
         data = csv.StringIO()
