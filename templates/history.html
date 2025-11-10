@@ -2,101 +2,147 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>History</title>
+  <title>Scan History | CTI Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <script>
-  window.addEventListener("DOMContentLoaded", () => {
-    document.body.classList.add("fade-in");
-  });
-   window.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
-      const content = document.getElementById("main-content");
-      content.classList.remove("hidden");
-      content.classList.add("show");
-    }, 1200);
-  });
-</script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
-    body {
-      font-family: 'Share Tech Mono', monospace;
-      background-color: #020617;
-      color: #00ffc8;
-       opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    .history-card {
+      transition: all 0.3s ease;
     }
-      body.fade-in {
-    opacity: 1;
-  }
+    .history-card:hover {
+      transform: translateX(8px);
+    }
   </style>
 </head>
-<body class="p-6">
-
-  <div id="loader"
-     class="fixed inset-0 z-50 bg-black flex items-center justify-center text-cyan-400 text-xl">
-  <span class="animate-pulse">⏳Preparing History...</span>
-</div>
-<div id="main-content" class="hidden fade-in">
-
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl text-cyan-400">Scan History</h1>
-    <div class="flex space-x-3">
-    <a href="/"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    Home
-  </a>
-  <a href="/results"
-  class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-  Results
-</a>
-  <a href="/visuals"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    Visuals
-  </a>
+<body class="min-h-screen p-4 md:p-6">
+  <div id="loader" class="loading-screen">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <div class="text-cyan-300 text-xl font-semibold">⏳ Preparing History...</div>
     </div>
   </div>
 
-<div class="space-y-4">
-  {% for entry in threats | reverse %}
-
-    <div class="bg-slate-900/50 border border-cyan-400 p-4 rounded-xl shadow-md hover:shadow-cyan-500/10 transition">
-      <div class="text-lg text-white">🔗 IP: {{ entry.ip }}</div>
-      <div class="text-sm text-slate-400 mt-1">
-        📍 Location: {{ entry.geo.city if entry.geo else 'Unknown' }}, {{ entry.geo.country if entry.geo else 'Unknown' }}<br>
-        ⏱ Scanned: {{ entry.timestamp if entry.timestamp else 'Unknown' }}<br>
-        🚨 GreyNoise Score: {{ entry.greynoise.score if entry.greynoise else 'N/A' }} / 100 <br>
-
-        {% set score = entry.greynoise.score if entry.greynoise and 'score' in entry.greynoise else 0 %}
-
-        🧠 Status: 
-        <span class="font-semibold px-2 py-1 rounded text-sm
-          {% if score <= 10 %}
-            text-green-300 
-          {% elif score <= 40 %}
-            text-yellow-300 
-          {% elif score <= 70 %}
-            text-orange-300 
-          {% else %}
-            text-red-300 
-          {% endif %}
-        ">
-          {% if score <= 10 %}
-            🟢Safe
-          {% elif score <= 40 %}  
-            🟡Low Risk
-          {% elif score <= 70 %}  
-            🟠Suspicious
-          {% else %}  
-            🔴High Risk
-          {% endif %}
-        </span>
+  <div id="main-content" class="hidden">
+    <!-- Header -->
+    <header class="panel mb-6 fade-in">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gradient mb-2">📊 Scan History</h1>
+          <p class="text-sm text-gray-400">
+            Total scans: <span class="text-cyan-300 font-semibold">{{ threats|length }}</span>
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-2">
+          <a href="/" class="nav-link">🏠 Home</a>
+          <a href="/visuals" class="nav-link">📈 Visuals</a>
+          <a href="/export" class="nav-link">📥 Export CSV</a>
+        </nav>
       </div>
-    </div>
-  {% else %}
-    <p class="text-slate-500">No scan history yet.</p>
-  {% endfor %}
-</div>
+    </header>
 
+    <!-- History List -->
+    <div class="space-y-4">
+      {% if threats|length > 0 %}
+        {% for entry in threats | reverse %}
+          {% set score = entry.greynoise.score if entry.greynoise and 'score' in entry.greynoise else 0 %}
+          {% set label = entry.greynoise.label if entry.greynoise and 'label' in entry.greynoise else 'Unknown' %}
+          
+          <div class="history-card card slide-in" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <!-- Left: IP and Details -->
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="text-2xl">🔗</span>
+                  <h3 class="text-xl font-mono font-bold text-cyan-300">{{ entry.ip }}</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span class="text-gray-400">📍 Location:</span>
+                    <span class="text-white ml-2">
+                      {{ entry.geo.city if entry.geo else 'Unknown' }}, 
+                      {{ entry.geo.country if entry.geo else 'Unknown' }}
+                    </span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">⏱ Scanned:</span>
+                    <span class="text-white ml-2">{{ entry.timestamp if entry.timestamp else 'Unknown' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">🎯 GreyNoise Score:</span>
+                    <span class="text-white ml-2 font-semibold">{{ score }}/100</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">🏷 Label:</span>
+                    <span class="ml-2 font-semibold
+                      {% if label == 'Benign' %}text-green-400
+                      {% elif label == 'Suspicious' %}text-yellow-400
+                      {% elif label == 'Malicious' %}text-red-400
+                      {% else %}text-gray-400{% endif %}">
+                      {{ label }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Status Badge and Actions -->
+              <div class="flex flex-col items-end gap-3">
+                <div class="inline-block px-4 py-2 rounded-lg font-semibold
+                  {% if score <= 10 %}status-safe
+                  {% elif score <= 40 %}status-suspicious
+                  {% elif score <= 70 %}bg-orange-500/10 border border-orange-500 text-orange-300
+                  {% else %}status-danger{% endif %}">
+                  {% if score <= 10 %}
+                    🟢 Safe
+                  {% elif score <= 40 %}
+                    🟡 Low Risk
+                  {% elif score <= 70 %}
+                    🟠 Suspicious
+                  {% else %}
+                    🔴 High Risk
+                  {% endif %}
+                </div>
+                
+                {% if entry.virustotal %}
+                  <div class="text-xs text-gray-400">
+                    <div>🛡️ VT: 
+                      <span class="text-green-400">{{ entry.virustotal.last_analysis_stats.harmless if entry.virustotal.last_analysis_stats else 0 }}</span> /
+                      <span class="text-yellow-400">{{ entry.virustotal.last_analysis_stats.suspicious if entry.virustotal.last_analysis_stats else 0 }}</span> /
+                      <span class="text-red-400">{{ entry.virustotal.last_analysis_stats.malicious if entry.virustotal.last_analysis_stats else 0 }}</span>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="panel text-center py-12 fade-in">
+          <div class="text-6xl mb-4">📭</div>
+          <h3 class="text-xl text-cyan-300 font-semibold mb-2">No Scan History</h3>
+          <p class="text-gray-400 mb-6">You haven't performed any IP scans yet.</p>
+          <a href="/" class="btn-primary inline-block">🔍 Start Your First Scan</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-500 mt-8 fade-in">
+      <p>© 2025 Krathan — Elevating Cybersecurity</p>
+    </footer>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        document.getElementById("loader").classList.add("hidden");
+        const content = document.getElementById("main-content");
+        content.classList.remove("hidden");
+        content.classList.add("fade-in");
+      }, 800);
+    });
+  </script>
 </body>
 </html>

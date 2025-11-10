@@ -13,15 +13,29 @@ import io
 last_result = None
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = 'supersecret'  
+app.secret_key = os.getenv('SECRET_KEY', 'supersecret-change-in-production')  
 
-client = MongoClient(
-    os.getenv("MONGO_URI"),
-    tls=True,
-    serverSelectionTimeoutMS=5000
-)
-db = client.cti_dashboard
-threats_collection = db["threats"]
+# MongoDB connection with error handling
+try:
+    mongo_uri = os.getenv("MONGO_URI")
+    if mongo_uri:
+        client = MongoClient(
+            mongo_uri,
+            tls=True,
+            serverSelectionTimeoutMS=5000
+        )
+        db = client.cti_dashboard
+        threats_collection = db["threats"]
+    else:
+        print("Warning: MONGO_URI not set. Database features will be limited.")
+        client = None
+        db = None
+        threats_collection = None
+except Exception as e:
+    print(f"Warning: MongoDB connection failed: {e}")
+    client = None
+    db = None
+    threats_collection = None
 
 
 USERS_FILE = 'users.json'
@@ -106,7 +120,8 @@ def lookup():
         "greynoise": gn_data,
     }
 
-    threats_collection.insert_one(result)
+    if threats_collection:
+        threats_collection.insert_one(result)
 
     last_result = result
 
@@ -118,10 +133,13 @@ def visuals():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    raw_threats = list(threats_collection.find())
-    for t in raw_threats:
-        if '_id' in t:
-            t['_id'] = str(t['_id'])
+    if threats_collection:
+        raw_threats = list(threats_collection.find())
+        for t in raw_threats:
+            if '_id' in t:
+                t['_id'] = str(t['_id'])
+    else:
+        raw_threats = []
     return render_template('visuals.html', threats=raw_threats)
 
 
@@ -141,7 +159,10 @@ def history():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    threats = list(threats_collection.find().sort("timestamp", -1))  
+    if threats_collection:
+        threats = list(threats_collection.find().sort("timestamp", -1))
+    else:
+        threats = []
     return render_template('history.html', threats=threats)
 
 
@@ -150,7 +171,10 @@ def export():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    threats = list(threats_collection.find())
+    if threats_collection:
+        threats = list(threats_collection.find())
+    else:
+        threats = []
 
     def generate():
         data = csv.StringIO()
@@ -198,4 +222,4 @@ def export():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

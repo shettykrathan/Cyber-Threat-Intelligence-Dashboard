@@ -3,181 +3,282 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Threat Visuals</title>
+  <title>Threat Visualizations | CTI Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-  window.addEventListener("DOMContentLoaded", () => {
-    document.body.classList.add("fade-in");
-  });
-   window.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
-      const content = document.getElementById("main-content");
-      content.classList.remove("hidden");
-      content.classList.add("show");
-    }, 1200);
-  });
-  
-</script>
   <style>
-    body {
-      font-family: 'Share Tech Mono', monospace;
-      background: radial-gradient(circle, #010409, #020617 80%);
-      color: #00ffc8;
-      min-height: 100vh;
-      padding: 1.5rem;
-      margin: 0;
-       opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
     }
-      body.fade-in {
-    opacity: 1;
-  }
-    .panel {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid #00f7ff44;
-      padding: 1.25rem;
-      border-radius: 12px;
-      box-shadow: 0 0 20px #00f7ff22;
-      backdrop-filter: blur(5px);
-      transition: transform 0.2s ease;
-      height: 380px; /* Controls vertical size */
-    }
-    .panel:hover {
-      transform: scale(1.02);
-    }
-    .panel h2 {
-      font-size: 1.125rem;
-      margin-bottom: 1rem;
-    }
-    canvas {
-      max-height: 280px;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in {
-      animation: slideIn 0.8s ease forwards;
-    }
-      .fade-in {
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-  }
-  .fade-in.show {
-    opacity: 1;
-  }
-
-  </style>
-</head>
-<body>
-<div id="loader"
-     class="fixed inset-0 z-50 bg-black flex items-center justify-center text-cyan-400 text-xl">
-  <span class="animate-pulse">⏳Loading Visuals...</span>
-</div>
-<div id="main-content" class="hidden fade-in">
-  <div class="flex justify-between items-center mb-8">
-    <div>
-      <h1 class="text-3xl text-cyan-400 tracking-widest">Threat Visuals</h1>
-      <p class="text-xs text-slate-400 mt-1">Report Summary</p>
-    </div>
-<div class="flex space-x-3">
-  <a href="/"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    Home
-  </a>
-  <a href="/results"
-  class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-  Results
-</a>
-<a href="/history"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    History
-  </a>
-  <a href="/export"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    Export CSV
-  </a>
-</div>
-
-  </div>
-
-  <div id="charts" class="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in">
-    {% set entry = threats[-1] %}
-    <div class="panel">
-      <h2 class="text-xl text-cyan-300">VirusTotal Analysis - {{ entry.ip }}</h2>
-      <canvas id="vtChart"></canvas>
-    </div>
-   <div class="panel">
-  <h2 class="text-xl text-cyan-300">GreyNoise Threat Score - {{ entry.ip }}</h2>
-  <canvas id="gnChart"></canvas>
-</div>
-  </div>
-
-  <!-- Footer -->
-  <div class="text-center text-xs text-slate-400 mt-12">
-    <hr class="my-4 border-cyan-800" />
-    © 2025 Krathan — Elevating Cybersecurity
-  </div>
-</div>
-  <!-- Chart Rendering Script -->
-  <script>
-    const entry = {{ threats[-1] | tojson | safe }};
-    const vt = entry.virustotal?.last_analysis_stats || {};
-    const gn = entry.greynoise || {};
-
-    const vtChartData = {
-      labels: ['Harmless', 'Suspicious', 'Malicious', 'Timeout', 'Undetected'],
-      datasets: [{
-        label: 'VirusTotal',
-        data: [
-          vt.harmless || 0,
-          vt.suspicious || 0,
-          vt.malicious || 0,
-          vt.timeout || 0,
-          vt.undetected || 0
-        ],
-        backgroundColor: ['#22c55e', '#facc15', '#ef4444', '#64748b', '#0ea5e9']
-      }]
-    };
-
-const gnChartData = {
-  labels: ['Threat Score', 'Remaining'],
-  datasets: [{
-    label: 'GreyNoise',
-    data: [
-      gn.score || 0,
-      100 - (gn.score || 0)
-    ],
-    backgroundColor: ['#f87171', '#334155']
-  }]
-};
-
-    new Chart(document.getElementById('vtChart'), {
-      type: 'bar',
-      data: vtChartData,
-      options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-    new Chart(document.getElementById('gnChart'), {
-  type: 'doughnut',
-  data: gnChartData,
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'bottom' },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            return `${context.label}: ${context.parsed}%`;
-          }
-        }
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 250px;
       }
     }
-  }
-});
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-6">
+  <div id="loader" class="loading-screen">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <div class="text-cyan-300 text-xl font-semibold">⏳ Loading Visuals...</div>
+    </div>
+  </div>
 
-  </script>
+  <div id="main-content" class="hidden">
+    <!-- Header -->
+    <header class="panel mb-6 fade-in">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gradient mb-2">📈 Threat Visualizations</h1>
+          <p class="text-sm text-gray-400">
+            {% if threats|length > 0 %}
+              Visualizing data for: <span class="text-cyan-300 font-mono font-semibold">{{ threats[-1].ip }}</span>
+            {% else %}
+              No data available
+            {% endif %}
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-2">
+          <a href="/" class="nav-link">🏠 Home</a>
+          <a href="/history" class="nav-link">📊 History</a>
+          <a href="/export" class="nav-link">📥 Export CSV</a>
+        </nav>
+      </div>
+    </header>
+
+    {% if threats|length > 0 %}
+      {% set entry = threats[-1] %}
+      
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- VirusTotal Chart -->
+        <div class="panel slide-in" style="animation-delay: 0.1s">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl">🛡️</span>
+            <h2 class="text-xl text-cyan-300 font-semibold">VirusTotal Analysis</h2>
+          </div>
+          <p class="text-sm text-gray-400 mb-4">IP: <span class="text-cyan-300 font-mono">{{ entry.ip }}</span></p>
+          <div class="chart-container">
+            <canvas id="vtChart"></canvas>
+          </div>
+        </div>
+
+        <!-- GreyNoise Chart -->
+        <div class="panel slide-in" style="animation-delay: 0.2s">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl">🔍</span>
+            <h2 class="text-xl text-cyan-300 font-semibold">GreyNoise Threat Score</h2>
+          </div>
+          <p class="text-sm text-gray-400 mb-4">IP: <span class="text-cyan-300 font-mono">{{ entry.ip }}</span></p>
+          <div class="chart-container">
+            <canvas id="gnChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Summary -->
+      <div class="panel slide-in mb-6" style="animation-delay: 0.3s">
+        <h3 class="text-xl text-cyan-300 font-semibold mb-4 text-center">📊 Quick Statistics</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="text-center p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+            <p class="text-2xl font-bold text-cyan-300">
+              {{ entry.virustotal.last_analysis_stats.harmless if entry.virustotal and entry.virustotal.last_analysis_stats else 0 }}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Harmless</p>
+          </div>
+          <div class="text-center p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <p class="text-2xl font-bold text-yellow-400">
+              {{ entry.virustotal.last_analysis_stats.suspicious if entry.virustotal and entry.virustotal.last_analysis_stats else 0 }}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Suspicious</p>
+          </div>
+          <div class="text-center p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <p class="text-2xl font-bold text-red-400">
+              {{ entry.virustotal.last_analysis_stats.malicious if entry.virustotal and entry.virustotal.last_analysis_stats else 0 }}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Malicious</p>
+          </div>
+          <div class="text-center p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+            <p class="text-2xl font-bold text-cyan-300">
+              {{ entry.greynoise.score if entry.greynoise and 'score' in entry.greynoise else 0 }}/100
+            </p>
+            <p class="text-xs text-gray-400 mt-1">GreyNoise Score</p>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="panel text-center py-12 fade-in">
+        <div class="text-6xl mb-4">📊</div>
+        <h3 class="text-xl text-cyan-300 font-semibold mb-2">No Data Available</h3>
+        <p class="text-gray-400 mb-6">Perform an IP scan to generate visualizations.</p>
+        <a href="/" class="btn-primary inline-block">🔍 Start Scanning</a>
+      </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-500 mt-8 fade-in">
+      <p>© 2025 Krathan — Elevating Cybersecurity</p>
+    </footer>
+  </div>
+
+  <!-- Chart Rendering Script -->
+  {% if threats|length > 0 %}
+    <script>
+      const entry = {{ threats[-1] | tojson | safe }};
+      const vt = entry.virustotal?.last_analysis_stats || {};
+      const gn = entry.greynoise || {};
+
+      // VirusTotal Bar Chart
+      const vtCtx = document.getElementById('vtChart');
+      if (vtCtx) {
+        new Chart(vtCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Harmless', 'Suspicious', 'Malicious', 'Timeout', 'Undetected'],
+            datasets: [{
+              label: 'VirusTotal Analysis',
+              data: [
+                vt.harmless || 0,
+                vt.suspicious || 0,
+                vt.malicious || 0,
+                vt.timeout || 0,
+                vt.undetected || 0
+              ],
+              backgroundColor: [
+                'rgba(34, 197, 94, 0.8)',
+                'rgba(250, 204, 21, 0.8)',
+                'rgba(239, 68, 68, 0.8)',
+                'rgba(100, 116, 139, 0.8)',
+                'rgba(14, 165, 233, 0.8)'
+              ],
+              borderColor: [
+                'rgb(34, 197, 94)',
+                'rgb(250, 204, 21)',
+                'rgb(239, 68, 68)',
+                'rgb(100, 116, 139)',
+                'rgb(14, 165, 233)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                titleColor: '#00f7ff',
+                bodyColor: '#ffffff',
+                borderColor: '#00f7ff',
+                borderWidth: 1
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  color: '#94a3b8'
+                },
+                grid: {
+                  color: 'rgba(0, 247, 255, 0.1)'
+                }
+              },
+              x: {
+                ticks: {
+                  color: '#94a3b8'
+                },
+                grid: {
+                  color: 'rgba(0, 247, 255, 0.1)'
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // GreyNoise Doughnut Chart
+      const gnCtx = document.getElementById('gnChart');
+      if (gnCtx) {
+        const gnScore = gn.score || 0;
+        new Chart(gnCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Threat Score', 'Remaining'],
+            datasets: [{
+              label: 'GreyNoise Threat Score',
+              data: [gnScore, 100 - gnScore],
+              backgroundColor: [
+                gnScore > 70 ? 'rgba(239, 68, 68, 0.8)' : 
+                gnScore > 40 ? 'rgba(250, 204, 21, 0.8)' : 
+                'rgba(34, 197, 94, 0.8)',
+                'rgba(51, 65, 85, 0.8)'
+              ],
+              borderColor: [
+                gnScore > 70 ? 'rgb(239, 68, 68)' : 
+                gnScore > 40 ? 'rgb(250, 204, 21)' : 
+                'rgb(34, 197, 94)',
+                'rgb(51, 65, 85)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  color: '#94a3b8',
+                  padding: 15
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                titleColor: '#00f7ff',
+                bodyColor: '#ffffff',
+                borderColor: '#00f7ff',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.parsed}%`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Show content after charts are ready
+      window.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          document.getElementById("loader").classList.add("hidden");
+          const content = document.getElementById("main-content");
+          content.classList.remove("hidden");
+          content.classList.add("fade-in");
+        }, 1000);
+      });
+    </script>
+  {% else %}
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          document.getElementById("loader").classList.add("hidden");
+          const content = document.getElementById("main-content");
+          content.classList.remove("hidden");
+          content.classList.add("fade-in");
+        }, 800);
+      });
+    </script>
+  {% endif %}
 </body>
 </html>

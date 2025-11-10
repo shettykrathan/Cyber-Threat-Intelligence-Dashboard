@@ -1,14 +1,39 @@
-# Ignore VS Code extensions and settings
-.vscode/
-.vscode/extensions/
-
-# Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
 
-# Env files
+# Flask
+instance/
+.webassets-cache
+
+# Environment variables
 .env
+.env.local
 
-# OS files
+# Database
+*.db
+*.sqlite
+users.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+
+# Static files (if using CDN)
+# static/uploads/

@@ -1,0 +1,312 @@
+/* Shared UI/UX Styles for CTI Dashboard */
+
+:root {
+  --primary-cyan: #00f7ff;
+  --primary-teal: #00ffc8;
+  --bg-dark: #020617;
+  --bg-slate: #0f172a;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --border-cyan: #00f7ff44;
+  --glow-cyan: #00f7ff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  background: radial-gradient(ellipse at top, #0f172a, #020617);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: var(--primary-cyan);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.slide-in {
+  animation: slideIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Glow Effects */
+.glow {
+  box-shadow: 0 0 20px rgba(0, 247, 255, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow:hover {
+  box-shadow: 0 0 30px rgba(0, 247, 255, 0.5);
+}
+
+.glow-strong {
+  box-shadow: 0 0 25px rgba(0, 247, 255, 0.5);
+}
+
+/* Panel Styles */
+.panel {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-cyan);
+  padding: 1.5rem;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 247, 255, 0.1);
+}
+
+.panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 247, 255, 0.2);
+  border-color: var(--primary-cyan);
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-cyan), var(--primary-teal));
+  color: var(--bg-dark);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 247, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 247, 255, 0.4);
+  background: linear-gradient(135deg, #00d9ff, #00e6b8);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-cyan);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--primary-cyan);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 247, 255, 0.1);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 247, 255, 0.3);
+}
+
+/* Input Styles */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-cyan);
+  border-radius: 8px;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary-cyan);
+  box-shadow: 0 0 15px rgba(0, 247, 255, 0.3);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.input-field::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Card Styles */
+.card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-cyan);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-cyan);
+  box-shadow: 0 8px 25px rgba(0, 247, 255, 0.2);
+}
+
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 6, 23, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--border-cyan);
+  border-top-color: var(--primary-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Navigation */
+.nav-link {
+  color: var(--primary-cyan);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--primary-cyan);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.nav-link:hover {
+  background: rgba(0, 247, 255, 0.1);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 247, 255, 0.3);
+  color: var(--text-primary);
+}
+
+/* Status Badges */
+.status-safe {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #4ade80;
+}
+
+.status-suspicious {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #facc15;
+}
+
+.status-danger {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #ef4444;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .panel {
+    padding: 1rem;
+  }
+  
+  .btn-primary {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-cyan);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-teal);
+}
+
+/* Utility Classes */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary-cyan), var(--primary-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.divider {
+  border-top: 1px dashed rgba(0, 247, 255, 0.3);
+  margin: 1.5rem 0;
+}
+
+.hidden {
+  display: none;
+}
+

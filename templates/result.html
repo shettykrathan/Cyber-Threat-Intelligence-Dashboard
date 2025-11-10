@@ -3,190 +3,230 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Threat Dashboard</title>
+  <title>Threat Analysis Report | CTI Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-  <script>
-  window.addEventListener("DOMContentLoaded", () => {
-    document.body.classList.add("fade-in");
-  });
-     window.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
-      const content = document.getElementById("main-content");
-      content.classList.remove("hidden");
-      content.classList.add("show");
-    }, 1200);
-  });
-</script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
-    body {
+    .stat-value {
       font-family: 'Share Tech Mono', monospace;
-      background: radial-gradient(circle, #010409, #020617 80%);
-      color: #00ffc8;
-      min-height: 100vh;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-       opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+      font-size: 1.5rem;
+      font-weight: bold;
     }
-      body.fade-in {
-    opacity: 1;
-  }
- .panel {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid #00f7ff44;
-  padding: 1.25rem;
-  border-radius: 12px;
-  box-shadow: 0 0 25px #00f7ff33;
-  backdrop-filter: blur(8px);
-  height: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.panel:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 40px #00f7ff66;
-}
-
-    .label {
-      color: #7dd3fc;
+    .risk-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
     }
-    .divider {
-      border-top: 1px dashed #00ffc833;
-      margin: 1.2rem 0;
-    }
-    footer {
-      background: #0f172a;
-      padding: 1.5rem;
-      border-top: 2px dashed #00f7ff66;
-    }
-    @keyframes slide-in {
-      0% { opacity: 0; transform: translateY(40px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    .slide-in {
-      opacity: 0;
-      animation: slide-in 0.9s ease-out forwards;
-    }
-    .fade-in {
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-  }
-  .fade-in.show {
-    opacity: 1;
-  }
   </style>
 </head>
-<body class="p-6">
-  <div id="loader"
-     class="fixed inset-0 z-50 bg-black flex items-center justify-center text-cyan-400 text-xl">
-  <span class="animate-pulse">⏳Loading Results...</span>
-</div>
-<div id="main-content" class="hidden fade-in">
-
-  <!-- Header Bar -->
-<header class="w-full flex items-center justify-between mb-6 px-6 py-4 border-b border-cyan-900 bg-[#0f172a]/50 backdrop-blur-md shadow-md">
-  
-  <!-- Left: Logo + Time -->
-  <div>
-    <h1 class="text-cyan-400 text-2xl tracking-widest font-bold">CYBER THREAT REPORT</h1>
-    <p class="text-xs text-slate-400 mt-1">Scan Time: {{ result.timestamp }}</p>
+<body class="min-h-screen p-4 md:p-6">
+  <div id="loader" class="loading-screen">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <div class="text-cyan-300 text-xl font-semibold">⏳ Loading Results...</div>
+    </div>
   </div>
-  
- <nav class="flex gap-4">
-  <a href="/"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white ">
-    Home
-  </a>
-   <a href="/visuals"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    Visuals
-  </a>
-  <a href="/history"
-    class="text-cyan-300 rounded-md border border-cyan-400 px-3 py-1.5 transition-all duration-200 shadow-md hover:shadow-cyan-400/40 hover:bg-cyan-700/10 hover:scale-105 hover:text-white">
-    History
-  </a>
-</nav>
-</header>
 
+  <div id="main-content" class="hidden">
+    <!-- Header -->
+    <header class="panel mb-6 fade-in">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gradient mb-2">Cyber Threat Report</h1>
+          <p class="text-sm text-gray-400">
+            <span class="text-cyan-300">📅 Scan Time:</span> {{ result.timestamp }}
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-2">
+          <a href="/" class="nav-link">🏠 Home</a>
+          <a href="/visuals" class="nav-link">📈 Visuals</a>
+          <a href="/history" class="nav-link">📊 History</a>
+        </nav>
+      </div>
+    </header>
 
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+      <!-- IP Details Panel -->
+      <div class="panel slide-in" style="animation-delay: 0.1s">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-2xl">🌐</span>
+          <h3 class="text-xl text-cyan-300 font-semibold">IP Details</h3>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <p class="text-sm text-gray-400 mb-1">IP Address</p>
+            <p class="text-lg font-mono text-white font-bold">{{ result.ip }}</p>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <h4 class="text-cyan-300 font-semibold mb-2">📍 Geographic Information</h4>
+            <ul class="space-y-2 text-sm">
+              <li class="flex justify-between">
+                <span class="text-gray-400">Country:</span>
+                <span class="text-white font-medium">{{ result.geo.country }}</span>
+              </li>
+              <li class="flex justify-between">
+                <span class="text-gray-400">Region:</span>
+                <span class="text-white font-medium">{{ result.geo.region }}</span>
+              </li>
+              <li class="flex justify-between">
+                <span class="text-gray-400">City:</span>
+                <span class="text-white font-medium">{{ result.geo.city }}</span>
+              </li>
+              <li class="flex justify-between">
+                <span class="text-gray-400">ISP:</span>
+                <span class="text-white font-medium">{{ result.geo.isp }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-  <!-- Animated Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+      <!-- VirusTotal Panel -->
+      <div class="panel slide-in" style="animation-delay: 0.2s">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-2xl">🛡️</span>
+          <h3 class="text-xl text-cyan-300 font-semibold">VirusTotal Analysis</h3>
+        </div>
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-2">
+              <p class="text-xs text-gray-400">Harmless</p>
+              <p class="stat-value text-green-400">{{ result.virustotal.last_analysis_stats.harmless }}</p>
+            </div>
+            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
+              <p class="text-xs text-gray-400">Suspicious</p>
+              <p class="stat-value text-yellow-400">{{ result.virustotal.last_analysis_stats.suspicious }}</p>
+            </div>
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-2">
+              <p class="text-xs text-gray-400">Malicious</p>
+              <p class="stat-value text-red-400">{{ result.virustotal.last_analysis_stats.malicious }}</p>
+            </div>
+            <div class="bg-gray-500/10 border border-gray-500/30 rounded-lg p-2">
+              <p class="text-xs text-gray-400">Undetected</p>
+              <p class="stat-value text-gray-400">{{ result.virustotal.last_analysis_stats.undetected }}</p>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <p class="text-sm text-gray-400 mb-1">Reputation Score</p>
+            <p class="text-lg font-bold text-cyan-300">{{ result.virustotal.reputation }}</p>
+          </div>
+        </div>
+      </div>
 
-    <!-- IP Info -->
-    <div class="panel text-sm slide-in" style="animation-delay: 0.2s">
-      <h3 class="text-lg mb-4 text-cyan-300">IP Details</h3>
-      <p class="mb-2"><span class="label">IP Address:</span> {{ result.ip }}</p>
-      <div class="divider"></div>
-      <h4 class="text-cyan-300">Geo Info</h4>
-      <ul class="mt-2 space-y-1">
-        <li><span class="label">Country:</span> {{ result.geo.country }}</li>
-        <li><span class="label">Region:</span> {{ result.geo.region }}</li>
-        <li><span class="label">City:</span> {{ result.geo.city }}</li>
-        <li><span class="label">ISP:</span> {{ result.geo.isp }}</li>
-      </ul>
+      <!-- GreyNoise Panel -->
+      <div class="panel slide-in" style="animation-delay: 0.3s">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-2xl">🔍</span>
+          <h3 class="text-xl text-cyan-300 font-semibold">GreyNoise Intelligence</h3>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-gray-400 mb-2">Threat Score</p>
+            <div class="relative">
+              <div class="w-full bg-gray-700 rounded-full h-4 mb-2">
+                <div class="h-4 rounded-full transition-all duration-500
+                  {% if result.greynoise.score > 70 %}bg-red-500
+                  {% elif result.greynoise.score > 40 %}bg-yellow-500
+                  {% else %}bg-green-500{% endif %}"
+                  style="width: {{ result.greynoise.score }}%"></div>
+              </div>
+              <p class="text-2xl font-bold text-cyan-300">{{ result.greynoise.score }}/100</p>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <p class="text-sm text-gray-400 mb-2">Classification</p>
+            <div class="inline-block px-4 py-2 rounded-lg
+              {% if result.greynoise.label == 'Benign' %}status-safe
+              {% elif result.greynoise.label == 'Suspicious' %}status-suspicious
+              {% elif result.greynoise.label == 'Malicious' %}status-danger
+              {% else %}bg-gray-700/50 border border-gray-500{% endif %}">
+              <span class="font-semibold">{{ result.greynoise.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- VirusTotal -->
-    <div class="panel text-sm slide-in" style="animation-delay: 0.4s">
-      <h3 class="text-lg mb-4 text-cyan-300">VirusTotal Scan</h3>
-      <ul class="space-y-2">
-        <li><span class="label">Harmless:</span> {{ result.virustotal.last_analysis_stats.harmless }}</li>
-        <li><span class="label">Undetected:</span> {{ result.virustotal.last_analysis_stats.undetected }}</li>
-        <li><span class="label text-yellow-400">Suspicious:</span> {{ result.virustotal.last_analysis_stats.suspicious }}</li>
-        <li><span class="label text-red-500">Malicious:</span> {{ result.virustotal.last_analysis_stats.malicious }}</li>
-        <li><span class="label">Timeout:</span> {{ result.virustotal.last_analysis_stats.timeout }}</li>
-        <li><span class="label">Reputation:</span> {{ result.virustotal.reputation }}</li>
-      </ul>
+    <!-- Risk Summary -->
+    <div class="panel slide-in mb-6" style="animation-delay: 0.4s">
+      <h4 class="text-2xl font-bold text-cyan-300 mb-6 text-center">Risk Assessment Summary</h4>
+      
+      {% set gn_score = result.greynoise.score if result.greynoise and 'score' in result.greynoise else 0 %}
+      {% set gn_label = result.greynoise.label if result.greynoise and 'label' in result.greynoise else '' %}
+      {% set vt_malicious = result.virustotal.last_analysis_stats.malicious %}
+      {% set vt_suspicious = result.virustotal.last_analysis_stats.suspicious %}
+
+      <div class="max-w-3xl mx-auto">
+        {% if vt_malicious > 2 or gn_score > 70 %}
+          <div class="text-center p-6 rounded-xl bg-red-500/10 border-2 border-red-500">
+            <div class="flex items-center justify-center gap-3 mb-3">
+              <span class="risk-indicator bg-red-500"></span>
+              <h5 class="text-2xl font-bold text-red-400">HIGH RISK</h5>
+            </div>
+            <p class="text-gray-300">
+              This IP address shows significant signs of malicious activity. 
+              VirusTotal detected <strong>{{ vt_malicious }}</strong> malicious flags, 
+              and GreyNoise threat score is <strong>{{ gn_score }}/100</strong>.
+            </p>
+            <p class="text-sm text-gray-400 mt-3">⚠️ Exercise extreme caution when interacting with this IP.</p>
+          </div>
+        {% elif vt_suspicious > 0 or gn_label == "Suspicious" or (gn_score > 40 and gn_score <= 70) %}
+          <div class="text-center p-6 rounded-xl bg-yellow-500/10 border-2 border-yellow-500">
+            <div class="flex items-center justify-center gap-3 mb-3">
+              <span class="risk-indicator bg-yellow-500"></span>
+              <h5 class="text-2xl font-bold text-yellow-400">SUSPICIOUS</h5>
+            </div>
+            <p class="text-gray-300">
+              This IP address may pose a potential risk. 
+              {% if vt_suspicious > 0 %}
+                VirusTotal flagged <strong>{{ vt_suspicious }}</strong> suspicious indicators.
+              {% endif %}
+              {% if gn_label == "Suspicious" %}
+                GreyNoise classification: <strong>Suspicious</strong>.
+              {% endif %}
+            </p>
+            <p class="text-sm text-gray-400 mt-3">⚠️ Monitor this IP and proceed with caution.</p>
+          </div>
+        {% else %}
+          <div class="text-center p-6 rounded-xl bg-green-500/10 border-2 border-green-500">
+            <div class="flex items-center justify-center gap-3 mb-3">
+              <span class="risk-indicator bg-green-500"></span>
+              <h5 class="text-2xl font-bold text-green-400">SAFE</h5>
+            </div>
+            <p class="text-gray-300">
+              No malicious activity or suspicious behavior detected. 
+              This IP address appears to be safe based on current threat intelligence.
+            </p>
+            <p class="text-sm text-gray-400 mt-3">✓ No immediate threats identified.</p>
+          </div>
+        {% endif %}
+      </div>
     </div>
 
-
-<div class="panel text-sm slide-in" style="animation-delay: 0.6s">
-  <h4 class="text-lg text-cyan-300 mb-2">GreyNoise Intelligence</h4>
-  <p><span class="label">Score:</span> {{ result.greynoise.score }}/100</p>
-  <p><span class="label">Label:</span> 
-    {% if result.greynoise.label == "Benign" %}
-      <span class="text-green-400">{{ result.greynoise.label }}</span>
-    {% elif result.greynoise.label == "Suspicious" %}
-      <span class="text-yellow-300">{{ result.greynoise.label }}</span>
-    {% elif result.greynoise.label == "Malicious" %}
-      <span class="text-red-400">{{ result.greynoise.label }}</span>
-    {% else %}
-      <span class="text-slate-300">{{ result.greynoise.label }}</span>
-    {% endif %}
-  </p>
-</div>
-</div>
-
- <footer class="mt-10 w-full text-sm text-cyan-300 border-t border-cyan-800 pt-6 slide-in" style="animation-delay: 0.8s">
-  <h4 class="text-xl font-bold text-cyan-400 tracking-wider mb-4 text-center">Scan Summary</h4>
-
-  <div class="mx-auto max-w-5xl bg-[#0f172a] border border-cyan-600/40 shadow-lg rounded-2xl p-6 space-y-3">
-    {% set gn_score = result.greynoise.score if result.greynoise and 'score' in result.greynoise else 0 %}
-    {% set gn_label = result.greynoise.label if result.greynoise and 'label' in result.greynoise else '' %}
-
-    {% if result.virustotal.last_analysis_stats.malicious > 2 or gn_score > 70 %}
-      <div class="text-red-400 text-lg font-bold tracking-wide text-center">Status: <span class="ml-2">HIGH RISK</span></div>
-      <p class="text-slate-400 text-center">This IP shows signs of malicious activity, based on VirusTotal & GreyNoise threat score.</p>
-    {% elif result.virustotal.last_analysis_stats.suspicious > 0 or gn_label == "Suspicious" %}
-      <div class="text-yellow-300 text-lg font-bold tracking-wide text-center">Status: <span class="ml-2">SUSPICIOUS</span></div>
-      <p class="text-slate-400 text-center">GreyNoise or VirusTotal flags indicate this IP may pose a potential risk.</p>
-    {% else %}
-      <div class="text-green-400 text-lg font-bold tracking-wide text-center">Status: <span class="ml-2">SAFE</span></div>
-      <p class="text-slate-400 text-center">No malicious activity or suspicious behavior detected. This IP appears safe.</p>
-    {% endif %}
-
-    <div class="h-[2px] w-1/2 mx-auto bg-cyan-800 rounded-full my-4"></div>
-    <p class="text-xs text-slate-500 italic text-center">Scan generated by Cyber Threat Intelligence Dashboard</p>
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-500 fade-in" style="animation-delay: 0.5s">
+      <p class="mb-2">Scan generated by Cyber Threat Intelligence Dashboard</p>
+      <p>© 2025 Krathan — Elevating Cybersecurity</p>
+    </footer>
   </div>
-  <div class="text-xs text-slate-500 text-center mt-4">
-  © 2025 Krathan — Elevating Cybersecurity 
-</div>
-</footer>
 
-
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        document.getElementById("loader").classList.add("hidden");
+        const content = document.getElementById("main-content");
+        content.classList.remove("hidden");
+        content.classList.add("fade-in");
+      }, 800);
+    });
+  </script>
 </body>
 </html>
