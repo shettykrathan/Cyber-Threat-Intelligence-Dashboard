@@ -57,24 +57,19 @@ A modern web application for analyzing IP addresses using VirusTotal and GreyNoi
 5. **Access the app**
    Open http://localhost:5001 in your browser
 
-## 🌐 Deploy for Free
+## 🌐 Deployment
 
-See [QUICK_DEPLOY.md](QUICK_DEPLOY.md) for the fastest deployment guide, or [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+The application can be deployed locally or to a cloud platform of your choice. Make sure to:
 
-### Quick Deploy Options:
+1. Set up MongoDB (local or Atlas)
+2. Configure environment variables
+3. Install dependencies
+4. Run the Flask application
 
-1. **Render** (Recommended) - https://render.com
-   - Free tier available
-   - Easy GitHub integration
-   - Auto-deploy on push
-
-2. **Railway** - https://railway.app
-   - Free tier available
-   - Simple deployment
-
-3. **PythonAnywhere** - https://www.pythonanywhere.com
-   - Free tier for Python apps
-   - Good for beginners
+Recommended platforms:
+- Local development
+- MongoDB Atlas (for database)
+- Any Python-supporting cloud platform
 
 ## 📋 Requirements
 
@@ -93,6 +88,19 @@ See [QUICK_DEPLOY.md](QUICK_DEPLOY.md) for the fastest deployment guide, or [DEP
 | `SECRET_KEY` | Recommended | Flask secret key for sessions |
 | `VT_API_KEY` | Optional | VirusTotal API key |
 | `GN_API_KEY` | Optional | GreyNoise API key |
+| `MONGO_TLS` | Optional | Enable TLS for MongoDB (true/false) |
+
+For local MongoDB:
+```env
+MONGO_URI=mongodb://localhost:27017
+MONGO_TLS=false
+```
+
+For MongoDB Atlas:
+```env
+MONGO_URI=mongodb+srv://...
+MONGO_TLS=true
+```
 
 ### Generate Secret Key
 
@@ -104,23 +112,31 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ```
 CTI-Dashboard/
-├── app.py                 # Main Flask application
-├── requirements.txt       # Python dependencies
-├── Procfile              # Deployment configuration
-├── runtime.txt           # Python version
-├── .gitignore           # Git ignore rules
+├── app.py                # Main Flask application
+├── requirements.txt      # Python dependencies
+├── Procfile             # Deployment configuration
+├── runtime.txt          # Python version
+├── .env                 # Environment variables (create this)
+├── SECURITY.md          # Security guidelines
+├── users.json           # Local user database
 ├── static/
 │   └── styles.css       # Shared CSS styles
 ├── templates/
 │   ├── index.html       # Dashboard home
 │   ├── login.html       # Login page
 │   ├── signup.html      # Signup page
-│   ├── result.html      # Scan results
+│   ├── result.html      # Threat analysis results
 │   ├── history.html     # Scan history
 │   └── visuals.html     # Data visualizations
 └── utils/
+    ├── __init__.py      # Package initialization
     ├── vt_api.py        # VirusTotal API integration
-    └── gn_api.py        # GreyNoise API integration
+    └── gn_api.py        # GreyNoise API integration (with smart scoring)
+
+Screenshots:
+├── Index.png            # Dashboard screenshot
+├── Results.png          # Analysis results screenshot
+└── Visuals.png         # Visualizations screenshot
 ```
 
 ## 🎯 Usage
@@ -132,9 +148,24 @@ CTI-Dashboard/
 5. **Check History** - Review previous scans
 6. **Export Data** - Download results as CSV
 
-## 🔗 Live Demo
+## �️ Threat Assessment
 
-🌐 **Railway**: cti-dashboard-production.up.railway.app
+The dashboard uses multiple data points to assess IP threats:
+
+### VirusTotal Analysis
+- Harmless/Suspicious/Malicious counts
+- Reputation scoring
+- Multiple security vendor results
+
+### GreyNoise Intelligence
+- Classification (Benign/Suspicious/Malicious)
+- RIOT status (common business services)
+- Scanning behavior detection
+- Threat scoring system:
+  - Benign: 10-35 (green)
+  - Suspicious: 40-70 (yellow)
+  - Malicious: 71-100 (red)
+  - No Data: Shows when IP is unknown
 
 ## 🔒 Security Notes
 
